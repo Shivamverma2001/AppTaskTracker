@@ -2,7 +2,6 @@ import Task from '../models/task.model.js';
 import Project from '../models/project.model.js';
 
 export const createTask = async (req, res) => {
-    console.log("createTask===>",req.user);
     try {
         const { title, description, status } = req.body;
         const { projectId } = req.params;  // Get projectId from route params

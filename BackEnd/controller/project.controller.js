@@ -1,5 +1,7 @@
 import Project from '../models/project.model.js';
 import User from '../models/user.model.js';
+import Task from '../models/task.model.js';
+
 
 export const createProject = async (req, res) => {
     try {
@@ -55,9 +57,6 @@ export const completeProject = async (req, res) => {
 };
 
 export const getProjects = async (req, res) => {
-    console.log("getProjects===>",req.user);
-    console.log("getProjects===>",req.body);
-    console.log("getProjects===>",req.params);
     try {
         const user = req.user;
         
@@ -91,9 +90,6 @@ export const getProjectById = async (req, res) => {
         const { projectId } = req.params;
         const user = req.user;
 
-        console.log('Debug - Project ID:', projectId);
-        console.log('Debug - User Projects:', user.projects);
-
         // Check if project exists in user's projects array
         const hasProject = user.projects.some(project => 
             project.toString() === projectId
@@ -105,7 +101,6 @@ export const getProjectById = async (req, res) => {
 
         // Get the project details using mongoose ObjectId
         const project = await Project.findById(projectId);
-        console.log('Debug - Found Project:', project);
         
         if (!project) {
             // If project is not found but exists in user's projects array,
@@ -153,17 +148,26 @@ export const deleteProject = async (req, res) => {
         );
 
         if (!hasProject) {
-            return res.status(404).json({ message: 'Project not found or not authorized' });
+            return res.status(404).json({ 
+                message: 'Project not found or not authorized',
+                success: false
+            });
         }
 
-        // Delete the project
+        // 1. Delete all tasks associated with this project
+        await Task.deleteMany({ createdBy: projectId });
+
+        // 2. Delete the project
         const deletedProject = await Project.findByIdAndDelete(projectId);
         
         if (!deletedProject) {
-            return res.status(404).json({ message: 'Project not found' });
+            return res.status(404).json({ 
+                message: 'Project not found',
+                success: false
+            });
         }
 
-        // Update user's projects array using findByIdAndUpdate instead of save
+        // 3. Remove project from user's projects array
         await User.findByIdAndUpdate(
             user._id,
             { 
@@ -174,7 +178,8 @@ export const deleteProject = async (req, res) => {
         );
 
         res.status(200).json({ 
-            message: 'Project deleted successfully',
+            message: 'Project and all associated tasks deleted successfully',
+            success: true,
             deletedProject: {
                 _id: deletedProject._id,
                 name: deletedProject.name,
@@ -183,11 +188,18 @@ export const deleteProject = async (req, res) => {
                 createdAt: deletedProject.createdAt
             }
         });
+
     } catch (error) {
         if (error.name === 'CastError') {
-            return res.status(400).json({ message: 'Invalid project ID format' });
+            return res.status(400).json({ 
+                message: 'Invalid project ID format',
+                success: false
+            });
         }
         console.error('Error in deleteProject:', error);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ 
+            message: error.message,
+            success: false
+        });
     }
 };
