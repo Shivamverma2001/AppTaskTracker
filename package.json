@@ -7,8 +7,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm install && npm install --prefix AppTaskTraker && npm run build --prefix AppTaskTraker",
-    "start": "node app.js",
-    "dev": "nodemon app.js"
+    "start": "node Backend/app.js",
+    "dev": "nodemon Backend/app.js"
   },
   "keywords": [],
   "author": "",
