@@ -39,15 +39,38 @@ const Signup = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    console.log('Form submitted:', formData);
-    navigate('/login');
+
+    try {
+      const response = await fetch('http://localhost:3000/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        // Don't store token after signup, just navigate to login
+        navigate('/login', { 
+          state: { 
+            message: 'Registration successful! Please login to continue.',
+            email: formData.email // Pass email to pre-fill login form
+          } 
+        });
+      } else {
+        const errorData = await response.json();
+        setErrors({ submit: errorData.message || 'Signup failed' });
+      }
+    } catch (error) {
+      setErrors({ submit: 'Network error occurred' });
+    }
   };
 
   return (

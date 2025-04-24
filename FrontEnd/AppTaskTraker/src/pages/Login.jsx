@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Login = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: '',
+    email: location.state?.email || '',
     password: ''
   });
   const [errors, setErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState(location.state?.message || '');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,6 +20,7 @@ const Login = () => {
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
+    setSuccessMessage('');
   };
 
   const validateForm = () => {
@@ -33,15 +36,35 @@ const Login = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    console.log('Form submitted:', formData);
-    navigate('/dashboard');
+
+    try {
+      const response = await fetch('http://localhost:3000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        navigate('/dashboard');
+      } else {
+        const errorData = await response.json();
+        setErrors({ submit: errorData.message || 'Invalid credentials' });
+      }
+    } catch (error) {
+      setErrors({ submit: 'Network error occurred' });
+    }
   };
 
   return (
