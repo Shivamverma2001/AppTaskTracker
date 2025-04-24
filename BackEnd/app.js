@@ -6,12 +6,7 @@ const port = process.env.PORT || 3000;
 import connectDB from './db.js';
 import router from './routes.js';
 
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors());
 app.use(express.json());
 app.use(router);
 
