@@ -1,0 +1,36 @@
+# Task Tracker Application
+
+## Backend Setup
+
+1. Create a `.env` file in the Backend directory with the following details:
+```env
+MONGO_URI=mongodb+srv://[your-username]:[your-password]@cluster0.fvw8d.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+PORT=3000
+JWT_SECRET=Shivam@123
+MONGODB_URI=mongodb://127.0.0.1:27017/TaskTraker
+```
+
+2. Install dependencies and start the server:
+```bash
+cd Backend
+npm install
+npm run dev
+```
+
+## Frontend Setup (AppTaskTracker)
+
+1. Install dependencies and start the application:
+```bash
+cd AppTaskTracker
+npm install
+npm run dev
+```
+```
+
+Note: For security reasons, I'd recommend:
+1. Using a more complex JWT_SECRET
+2. Not sharing actual MongoDB credentials in the README
+3. Using environment variables examples instead of actual values
+4. Adding a .gitignore file to prevent committing sensitive information
+
+Would you like me to provide a more secure version of this README?
