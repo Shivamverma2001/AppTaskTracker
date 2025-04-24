@@ -4,7 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
-import ProjectDetail from './pages/ProjectDetail';
+import ProjectDetails from './pages/ProjectDetails';
 
 function App() {
 
@@ -24,7 +24,7 @@ function App() {
         path="/project/:projectId" 
         element={
           <ProtectedRoute>
-            <ProjectDetail />
+            <ProjectDetails />
           </ProtectedRoute>
         } 
       />

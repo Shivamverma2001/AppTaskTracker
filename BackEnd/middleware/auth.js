@@ -7,7 +7,6 @@ export const authenticate = async (req, res, next) => {
     try {
         // Get token from header
         const authHeader = req.headers.authorization;
-        console.log("authHeader===>",authHeader);
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return res.status(401).json({ message: 'No token provided' });
         }
@@ -18,11 +17,8 @@ export const authenticate = async (req, res, next) => {
         // Verify token
         const decoded = jwt.verify(token, JWT_SECRET);
 
-        console.log("decoded===>",decoded);
-
         // Find user
         const user = await User.findById(decoded.id).select('-password').lean();
-        console.log("user===>",user);
         if (!user) {
             return res.status(401).json({ message: 'User not found' });
         }

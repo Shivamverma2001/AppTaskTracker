@@ -53,3 +53,141 @@ export const completeProject = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const getProjects = async (req, res) => {
+    console.log("getProjects===>",req.user);
+    console.log("getProjects===>",req.body);
+    console.log("getProjects===>",req.params);
+    try {
+        const user = req.user;
+        
+        // Get all projects using the IDs from user.projects array
+        const projects = await Project.find({
+            _id: { $in: user.projects }
+        }).select('_id name description status createdAt createdBy');
+
+        // Return formatted projects
+        const formattedProjects = projects.map(project => ({
+            _id: project._id,
+            name: project.name,
+            description: project.description,
+            status: project.status,
+            createdAt: project.createdAt,
+            createdBy: project.createdBy
+        }));
+
+        res.status(200).json({
+            count: projects.length,
+            projects: formattedProjects
+        });
+    } catch (error) {
+        console.error('Error in getProjects:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const getProjectById = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        const user = req.user;
+
+        console.log('Debug - Project ID:', projectId);
+        console.log('Debug - User Projects:', user.projects);
+
+        // Check if project exists in user's projects array
+        const hasProject = user.projects.some(project => 
+            project.toString() === projectId
+        );
+
+        if (!hasProject) {
+            return res.status(404).json({ message: 'Project not found or not authorized' });
+        }
+
+        // Get the project details using mongoose ObjectId
+        const project = await Project.findById(projectId);
+        console.log('Debug - Found Project:', project);
+        
+        if (!project) {
+            // If project is not found but exists in user's projects array,
+            // we should clean up the user's projects array
+            await User.findByIdAndUpdate(
+                user._id,
+                { $pull: { projects: projectId } }
+            );
+            return res.status(404).json({ 
+                message: 'Project not found in database. User projects list has been updated.'
+            });
+        }
+
+        // Return formatted project
+        const formattedProject = {
+            _id: project._id,
+            name: project.name,
+            description: project.description,
+            status: project.status,
+            createdAt: project.createdAt,
+            createdBy: project.createdBy
+        };
+
+        res.status(200).json(formattedProject);
+    } catch (error) {
+        if (error.name === 'CastError') {
+            return res.status(400).json({ 
+                message: 'Invalid project ID format',
+                details: error.message 
+            });
+        }
+        console.error('Error in getProjectById:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const deleteProject = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        const user = req.user;
+
+        // First verify if the project belongs to the user using projects array
+        const hasProject = user.projects.some(project => 
+            project.toString() === projectId
+        );
+
+        if (!hasProject) {
+            return res.status(404).json({ message: 'Project not found or not authorized' });
+        }
+
+        // Delete the project
+        const deletedProject = await Project.findByIdAndDelete(projectId);
+        
+        if (!deletedProject) {
+            return res.status(404).json({ message: 'Project not found' });
+        }
+
+        // Update user's projects array using findByIdAndUpdate instead of save
+        await User.findByIdAndUpdate(
+            user._id,
+            { 
+                $pull: { 
+                    projects: projectId 
+                } 
+            }
+        );
+
+        res.status(200).json({ 
+            message: 'Project deleted successfully',
+            deletedProject: {
+                _id: deletedProject._id,
+                name: deletedProject.name,
+                description: deletedProject.description,
+                status: deletedProject.status,
+                createdAt: deletedProject.createdAt
+            }
+        });
+    } catch (error) {
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: 'Invalid project ID format' });
+        }
+        console.error('Error in deleteProject:', error);
+        res.status(500).json({ message: error.message });
+    }
+};

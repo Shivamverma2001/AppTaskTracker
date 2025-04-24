@@ -133,7 +133,7 @@ export const deleteUser = async (req, res) => {
 export const addProjectToUser = async (req, res) => {
     try {
         const { name, description } = req.body;
-        const userId = req.user._id;
+        const userId = req.user._id;  // Get user ID from authenticated user
 
         const user = await User.findById(userId);
         if (!user) {
@@ -151,8 +151,24 @@ export const addProjectToUser = async (req, res) => {
         user.projects.push(project._id);
         await user.save();
 
-        const updatedUser = await User.findById(userId).populate('projects');
-        res.status(200).json(sanitizeUser(updatedUser));
+        // Get updated user with populated projects
+        const updatedUser = await User.findById(userId).populate({
+            path: 'projects',
+            select: '_id name description status createdAt'
+        });
+
+        // Return both the new project and updated user
+        res.status(201).json({
+            message: 'Project created successfully',
+            project: {
+                _id: project._id,
+                name: project.name,
+                description: project.description,
+                status: project.status,
+                createdAt: project.createdAt
+            },
+            user: sanitizeUser(updatedUser)
+        });
     } catch (error) {
         if (error.name === 'ValidationError') {
             return res.status(400).json({ message: error.message });
@@ -198,12 +214,18 @@ export const logout = async (req, res) => {
     }
 }
 
-// Update the sanitizeUser helper function to include projects
+// Update the sanitizeUser helper function to include complete project details
 const sanitizeUser = (user) => ({
     id: user._id,
     name: user.name,
     email: user.email,
     country: user.country,
-    projects: user.projects
+    projects: user.projects.map(project => ({
+        _id: project._id,
+        name: project.name,
+        description: project.description,
+        status: project.status,
+        createdAt: project.createdAt
+    }))
 });
 
