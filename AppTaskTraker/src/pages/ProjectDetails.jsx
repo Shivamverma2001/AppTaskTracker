@@ -23,7 +23,7 @@ const ProjectDetails = () => {
       }
 
       // Fetch project details
-      const projectResponse = await fetch(`http://localhost:3000/users/projects/${projectId}`, {
+      const projectResponse = await fetch(`/users/projects/${projectId}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -37,7 +37,7 @@ const ProjectDetails = () => {
       setProject(projectData);
 
       // Fetch tasks for the project
-      const tasksResponse = await fetch(`http://localhost:3000/projects/${projectId}/tasks`, {
+      const tasksResponse = await fetch(`/projects/${projectId}/tasks`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -63,7 +63,7 @@ const ProjectDetails = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/projects/${projectId}/tasks`, {
+      const response = await fetch(`/projects/${projectId}/tasks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ const ProjectDetails = () => {
   const handleUpdateTask = async (taskId, updatedData) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}`, {
+      const response = await fetch(`/projects/${projectId}/tasks/${taskId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ const ProjectDetails = () => {
   const handleDeleteTask = async (taskId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/projects/${projectId}/tasks/${taskId}`, {
+      const response = await fetch(`/projects/${projectId}/tasks/${taskId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

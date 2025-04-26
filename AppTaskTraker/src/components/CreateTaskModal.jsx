@@ -11,7 +11,7 @@ const CreateTaskModal = ({ projectId, onClose, onTaskCreated }) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/projects/${projectId}/tasks`, {
+      const response = await fetch(`/projects/${projectId}/tasks`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

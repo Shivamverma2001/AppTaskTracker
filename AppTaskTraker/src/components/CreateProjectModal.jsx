@@ -7,7 +7,7 @@ const CreateProjectModal = ({ onClose, onProjectCreated }) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3000/users/projects', {
+      const response = await fetch('/users/projects', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

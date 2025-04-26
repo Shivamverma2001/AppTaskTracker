@@ -20,7 +20,7 @@ const Dashboard = () => {
       }
 
       // Fetch all projects using the correct route
-      const response = await fetch('http://localhost:3000/users/projects', {
+      const response = await fetch('/users/projects', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -54,7 +54,7 @@ const Dashboard = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:3000/users/projects', {
+      const response = await fetch('/users/projects', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ const Dashboard = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:3000/users/projects/${projectId}`, {
+      const response = await fetch(`/users/projects/${projectId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
